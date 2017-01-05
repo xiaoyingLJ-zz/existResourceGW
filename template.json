@@ -182,21 +182,44 @@
       }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('storageName')]",
-      "apiVersion": "2016-01-01",
-      "location": "[resourceGroup().location]",
-      "tags": {
-            "vmname": "[parameters('Name')]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
-      ],
-      "sku": {
-        "name": "Standard_LRS"
-      },
-      "kind": "Storage",
-      "properties": {}
+      "apiVersion": "2015-01-01",
+      "name": "[variables('storageTemplateName')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[variables('storagelink')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Name": {
+            "value": "[parameters('Name')]"
+          },
+          "storageName": {
+            "value": "[parameters('storageName')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-01-01",
+      "name": "[variables('diagStorageTemplateName')]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[variables('diagStoragelink')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "Name": {
+            "value": "[parameters('Name')]"
+          },
+          "diagStorageName": {
+            "value": "[parameters('diagStorageName')]"
+          }
+        }
+      }
     },
     {
       "apiVersion": "2016-03-30",
@@ -255,7 +278,8 @@
             "vmname": "[parameters('Name')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Resources/deployments/', variables('storageTemplateName'))]",
+        "[resourceId('Microsoft.Resources/deployments/', variables('diagStorageTemplateName'))]",
         "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "properties": {
@@ -276,7 +300,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/osdisk.vhd')]"
+              "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/', resourceGroup().name, 'vhds/', parameters('Name'), 'OSDisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -287,7 +311,7 @@
               "diskSizeGB": "100",
               "lun": 0,
               "vhd": {
-                "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/datadisk1.vhd')]"
+                "uri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/', resourceGroup().name, 'vhds/', parameters('Name'), 'DataDisk1.vhd')]"
               },
               "createOption": "Empty"
             }
@@ -303,7 +327,7 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": "true",
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+            "storageUri": "[concat('https://', parameters('storageName'), '.blob.core.windows.net/')]"
           }
         }
       }
