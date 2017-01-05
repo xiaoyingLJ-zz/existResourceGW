@@ -121,7 +121,7 @@
     }
   },
   "variables": {
-    "baseUri": "https://raw.githubusercontent.com/xiaoyingLJ/oneGWOneTem/master/",
+    "baseUri": "https://raw.githubusercontent.com/xiaoyingLJ/oneGWOne/master/",
     "prefix": "[split(parameters('Name'), '-')[0]]",
     "vnetlink": "[concat(variables('baseUri'), parameters('createNewVnetOrUseExisting'),'vnet.json')]",
     "vnetTemplateName": "[concat(parameters('Name'), 'vnetTemplate')]",
