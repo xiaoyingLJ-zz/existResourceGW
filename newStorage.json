@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Name": {
+      "type": "string"
+    },
+    "storageName":{
+      "type": "string"
+    }
+  },
+  "variables": {
+      "storageAccountName": "[take(concat(toLower(parameters('storageName')), uniquestring(resourceGroup().id),parameters('storageName')), 24)]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+            "vmname": "[parameters('Name')]"
+      },
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {}
+    }
+  ]
+}

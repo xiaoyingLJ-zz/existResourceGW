@@ -86,14 +86,51 @@
       "metadata": {
         "decription": "your new or existing subnet name"
       }
+    },
+    "newOrExistingStorageForVM":
+    {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new","existing"
+      ]
+    },
+    "storageName":{
+      "type": "string",
+      "maxLength": 24,
+      "minLength": 3,
+      "metadata": {
+        "description": "if you choose existing, input your existing storage name. if you choose new, we will create a unique storage name with the prefix you input here."
+      }
+    },
+    "newOrExistingDiagStorageForVM":
+    {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new","existing"
+      ]
+    },
+    "diagStorageName":{
+      "type": "string",
+      "maxLength": 24,
+      "minLength": 3,
+      "metadata": {
+        "description": "if you choose existing, input your existing storage name. if you choose new, we will create a unique storage name with the prefix you input here."
+      }
     }
   },
   "variables": {
+    "baseUri": "https://raw.githubusercontent.com/xiaoyingLJ/oneGWOneTem/master/",
     "prefix": "[split(parameters('Name'), '-')[0]]",
-    "vnetlink": "[concat('https://raw.githubusercontent.com/xiaoyingLJ/oneGWOneTem/master/',parameters('createNewVnetOrUseExisting'),'vnet.json')]",
+    "vnetlink": "[concat(variables('baseUri'), parameters('createNewVnetOrUseExisting'),'vnet.json')]",
     "vnetTemplateName": "[concat(parameters('Name'), 'vnetTemplate')]",
-    "nsglink": "[concat('https://raw.githubusercontent.com/xiaoyingLJ/oneGWOneTem/master/',parameters('allowIncomingRemoteFromCredentialManager'),'IncomingRemote.json')]",
+    "nsglink": "[concat(variables('baseUri'), parameters('allowIncomingRemoteFromCredentialManager'),'IncomingRemote.json')]",
     "nsgTemplateName": "[concat(parameters('Name'), 'NSGTemplate')]",
+    "storagelink": "[concat(variables('baseUri'), parameters('newOrExistingStorageForVM'),'Storage.json')]",
+    "storageTemplateName": "[concat(parameters('Name'), 'StorageTemplate')]",
+    "diagStoragelink": "[concat(variables('baseUri'), parameters('newOrExistingDiagStorageForVM'),'DiagStorage.json')]",
+    "diagStorageTemplateName": "[concat(parameters('Name'), 'DiagStorageTemplate')]",
     "virtualNetworkName": "[parameters('virtualNetworkName')]",
     "subnetName": "[parameters('subnetName')]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
@@ -146,7 +183,7 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "name": "[variables('storageAccountName')]",
+      "name": "[parameters('storageName')]",
       "apiVersion": "2016-01-01",
       "location": "[resourceGroup().location]",
       "tags": {
